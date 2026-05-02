@@ -19,6 +19,8 @@ import BalanceIcon from '@mui/icons-material/Balance';
 import SecurityIcon from '@mui/icons-material/Security';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const DRAWER_WIDTH = 256;
@@ -44,6 +46,8 @@ const navItems: NavItem[] = [
   { label: 'BigQuery', icon: <TableChartIcon fontSize="small" />, path: '/bigquery', section: 'BIG DATA' },
   { label: 'Load Balancing', icon: <BalanceIcon fontSize="small" />, path: '/load-balancing', section: 'NETWORKING' },
   { label: 'Billing', icon: <AttachMoneyIcon fontSize="small" />, path: '/billing', section: 'BILLING' },
+  { label: 'Support', icon: <SupportAgentIcon fontSize="small" />, path: '/support', section: 'SUPPORT' },
+  { label: 'My Cases', icon: <ConfirmationNumberIcon fontSize="small" />, path: '/my-cases' },
 ];
 
 const SideNav: React.FC<SideNavProps> = ({ open }) => {

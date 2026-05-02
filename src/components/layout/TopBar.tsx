@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloudIcon from '@mui/icons-material/Cloud';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import { useNavigate } from 'react-router-dom';
 import { useGcpStore } from '../../hooks/useGcpStore';
 import { findProject, setCurrentProject, getAllProjectsInOrg, type Project } from '../../store/gcpStore';
 
@@ -20,6 +22,7 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ onToggleSidebar }) => {
   const state = useGcpStore();
+  const navigate = useNavigate();
   const currentProject = state.currentProjectId ? findProject(state.currentProjectId) : null;
 
   // Get all projects across all orgs
@@ -107,6 +110,15 @@ const TopBar: React.FC<TopBarProps> = ({ onToggleSidebar }) => {
             }}
           />
         )}
+
+        <IconButton
+          size="small"
+          sx={{ color: '#fff', mr: 1 }}
+          onClick={() => navigate('/support-panel/login')}
+          title="Support Panel"
+        >
+          <SupportAgentIcon sx={{ fontSize: 18 }} />
+        </IconButton>
 
         <Typography
           variant="caption"
