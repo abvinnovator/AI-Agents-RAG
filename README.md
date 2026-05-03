@@ -415,6 +415,10 @@ Ticket Solved → Resolution Stored → MongoDB → Pinecone → Secondary Agent
 ---
 
 
+# Resources i used to understand the concepts and implemnted using those :
 
-* Cloud + AI product engineering
-* Enterprise support automation
+https://www.linkedin.com/pulse/understanding-cosine-similarity-rag-generation-modern-thadivaka-hdmde/
+https://medium.com/@nishi.paul.in/simple-rag-with-cosine-similarity-search-hands-on-blog-a344cfa78967
+https://www.outerport.com/blog/agentic-search
+https://www.ibm.com/think/topics/agentic-rag
+
