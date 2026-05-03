@@ -422,3 +422,10 @@ https://medium.com/@nishi.paul.in/simple-rag-with-cosine-similarity-search-hands
 https://www.outerport.com/blog/agentic-search
 https://www.ibm.com/think/topics/agentic-rag
 
+
+# Data used : 
+i used official gcp docs :
+and also used some support cases that resolved by google support cases :
+ https://docs.cloud.google.com/support/docs/customer-care-procedures
+ https://docs.cloud.google.com/support/docs/best-practices
+ https://cloud.google.com/blog/topics/inside-google-cloud/google-cloud-support-engineer-solves-a-tough-dns-case
