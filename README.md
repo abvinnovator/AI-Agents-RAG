@@ -373,6 +373,11 @@ Ticket Solved → Resolution Stored → MongoDB → Pinecone → Secondary Agent
 
 ---
 
+# Outputs : 
+
+<img width="1637" height="808" alt="image" src="https://github.com/user-attachments/assets/3e5af530-81c5-4434-ac5f-6e576e46f0a5" />
+
+
 ---
 
 
