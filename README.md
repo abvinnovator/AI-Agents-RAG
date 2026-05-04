@@ -67,21 +67,7 @@ A web-based enterprise-grade cloud simulator inspired by GCP that allows users t
 
 # High-Level Architecture
 
-```txt
-Frontend (React + MUI)
-       ↓
-Express / Node.js APIs
-       ↓
-MongoDB (User, Infra, Tickets, Support Data)
-       ↓
-AI Layer:
-   - Gemini LLM
-   - RAG Pipeline
-   - Pinecone Vector DB
-   - Agent Router
-       ↓
-Human-in-the-loop Admin Panel
-```
+<img width="1557" height="390" alt="cloudops_ai_architecture" src="https://github.com/user-attachments/assets/31d7e199-3211-4003-b45d-c8e064dc2f1a" />
 
 ---
 
@@ -386,31 +372,6 @@ Ticket Solved → Resolution Stored → MongoDB → Pinecone → Secondary Agent
 * Feedback management
 
 ---
-
-# MVP Scope (Recommended)
-
-## Must Build:
-
-### Cloud Simulator:
-
-* Projects
-* VPC
-* VM
-* Storage
-* Billing estimate
-
-### AI:
-
-* Basic RAG
-* Billing explanation
-* Ticket routing agent
-
-### Support:
-
-* Super admin
-* Secondary users
-* Escalation matrix
-* Personalized AI memory
 
 ---
 
