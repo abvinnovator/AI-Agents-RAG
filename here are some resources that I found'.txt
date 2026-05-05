@@ -1,0 +1,444 @@
+here are some resources that I found abolut agentic rag :
+
+one reddit post : 
+
+Agentic RAG is mostly hype. Here's what I'm seeing.
+Discussion
+I've had a bunch of calls lately where a client starts the conversation asking for "agentic RAG." When I ask them what problem they're trying to solve, they usually point to a blog post they read.
+
+But after 15 minutes of digging, we always land on the real issue: their current system is giving bad answers because the data it’s pulling from is a total mess.
+
+They want to add this complex "agent" layer on top of a foundation that's already shaky. It’s like trying to fix a crumbling wall by putting on a new coat of paint. You’re not solving the actual problem.
+
+I worked with a fintech company a few months back whose chatbot was confidently telling customers an old interest rate. The problem wasn't the AI, it was that nobody had updated the source document for six months. An "agent" wouldn't have fixed that. It would've just found the wrong answer with more steps.
+
+Look, regular RAG is pretty straightforward. You ask a question, it finds a relevant doc, and it writes an answer based on what it finds. The 'agentic' flavor just means the AI can try a few different things to get a better answer, like searching again or using a different tool if the first try doesn't work. It's supposed to be smarter.
+
+But what the sales pitches leave out is that this makes everything slower and way more complicated. I prototyped one for a client. Their old, simple system answered in under a second. The new "smarter" agent version took almost three seconds. For a customer support chat, that was a dealbreaker.
+
+And when it breaks? Good luck. With a simple RAG, you just check the document it found. With an agent, you're trying to figure out why it decided to search for this instead of that, or why it used the wrong tool. It can be a real headache to debug.
+
+The projects I've seen actually succeed are the ones that focus on the boring stuff. A clean, updated knowledge base. A solid plan for what content goes in and who's responsible for keeping it fresh. That’s it. That’s the secret. Get that right, and a simple RAG will work wonders.
+
+It's not totally useless tech. If you're building something for, say, legal research where it needs to check multiple sources and piece things together, it can be powerful. But that’s a small fraction of the work I see. Most businesses just need to clean out their data closet before they go shopping for new AI.
+
+Fix the foundation first. The results are way better, and you'll save a ton of money and headaches.
+
+Anyone else feel like the industry is skipping the fundamentals to chase the latest shiny object? Or have you actually gotten real, solid value out of this? Curious to hear other stories from the trenches.
+
+Archived post. New comments cannot be posted and votes cannot be cast.
+
+
+u/Meshyai avatar
+Meshyai
+
+meshy.ai
+Sign Up
+Sort by:
+
+Best
+
+Search Comments
+Expand comment search
+Comments Section
+zakamark
+•
+6mo ago
+Rag is extremely difficult. The main issue is that there endless way of querying the same fact.
+
+Take for example such sentence, oby one sentence from paragraph:
+
+“I have a meeting at 12:00 with customer X, who produces cars.”
+
+You could query it in endless ways: • “Do I have a meeting today?” • “Who am I meeting at 12?” • “What time is my meeting with the car manufacturer?” • “Are there any meetings between 10:00 and 13:00?” • “Do I ever meet anyone from customer X?”
+
+All of these questions reference the same fact from different angles — time-based, entity-based, category-based, or even existential.
+
+A robust rag system needs to retrieve that one fact from any of these formulations — an enormous challenge, since each fact must support an almost infinite number of natural language variations.
+
+
+
+
+•
+6mo ago
+rag struggles here because you’re asking it to act like a db without a schema. the fix that worked for us: extract facts into a tiny event schema first (who, when, where, tags), keep the raw text for grounding, and route queries to the right index.
+
+“do i have a meeting today” -> time filter. “who at 12” -> exact time. “car manufacturer” -> entity + category.
+
+then fall back to semantic retrival only if the structured pass misses. boring but it stops the infinite paraphrase problem.
+
+what are you building this for?
+
+
+
+
+yupengkong
+•
+6mo ago
+this is more like a named entity recognition (NER) stuff, but probably need to do some data normalization or entity normalization
+
+
+Upvote
+1
+
+Downvote
+
+Award
+
+Share
+
+u/JeronimoCallahan avatar
+
+•
+6mo ago
+What is the way around this?
+
+
+
+Upvote
+5
+
+Downvote
+
+Award
+
+Share
+
+u/sccorby avatar
+sccorby
+•
+6mo ago
+Here’s one way:
+
+As you process all of the chunks extracted from a document, instead of embedding the chunk alone, run the chunk through an LLM and ask for 10 examples of questions where this content would be relevant in answering.
+
+In addition to the chunk, also create embeddings for each of the queries to store in your vector db. Reference the chunk for each of the stored queries.
+
+at query time, parse any returned results into the chunk they reference and the originating document and do whatever you need to do downstream to rerank and return the appropriate context.
+
+
+
+Upvote
+24
+
+Downvote
+
+Award
+
+Share
+
+Competitive-Pop4866
+•
+6mo ago
+This approach is basically what my friend from Redis presented in his speech https://www.youtube.com/watch?v=KRaSkSzwCkE
+
+
+Upvote
+4
+
+Downvote
+
+Award
+
+Share
+
+shrek-is-real
+•
+6mo ago
+ANSI SQL lol
+
+
+Upvote
+18
+
+Downvote
+
+Award
+
+Share
+
+u/Wide-Self5340 avatar
+Wide-Self5340
+•
+6mo ago
+Anthropic also had a powerful concept called Contextual Retrieval. When you ingest your chunks, append a context statement that gives every chunk information that helps the LLM understand why that chunk is important and not just that the semantic meaning is closest. I did a couple of articles on this:
+
+Contextual Retrieval in Retrieval-Augmented Generation (RAG) Using Contextual Retrieval with Box and Pinecone
+
+
+Upvote
+4
+
+Downvote
+
+Award
+
+Share
+
+u/TheOdbball avatar
+TheOdbball
+•
+6mo ago
+Redis aggressive caching and verb functions
+
+
+Upvote
+1
+
+Downvote
+
+Award
+
+Share
+
+zakamark
+•
+6mo ago
+I wish I could say there’s a single solution to this — but there isn’t. Some of the responses offer great examples of how to deal with it, but it’s a tough topic and probably the next billion-dollar problem to solve. We try to solve it with fine tunning but there is still a lot to be done
+
+
+Upvote
+2
+
+Downvote
+
+Award
+
+Share
+
+luckguyfrom93
+•
+6mo ago
+Am I missing something or you're talking about star schema and the old data warehousing?
+
+
+Upvote
+1
+
+Downvote
+
+Award
+
+Share
+
+u/BuildwithVignesh avatar
+BuildwithVignesh
+•
+6mo ago
+Industry Professional
+Most teams want shiny features but skip the boring foundations.If your data is outdated or messy no agent layer will rescue it.
+
+Clean knowledge bases win every time. Fix the source first and simple rag suddenly looks amazing.
+
+
+
+Upvote
+30
+
+Downvote
+
+Award
+
+Share
+
+u/chintu3536 avatar
+chintu3536
+•
+6mo ago
+•
+Edited 6mo ago
+u/BuildwithVignesh Soo true. Garbage in -> Garbage out
+Structured data is the real MOAT. Agentic RAG does help, but the initial focus should be on the first step, indexing the correct data. Have captured some of these thoughts in the below blog
+https://docstrange.nanonets.com/blogs/langgraph-agentic-rag.html
+
+
+U
+Agreed. It is just like other IT projects. Most of the effort is in the data cleaning.
+
+
+
+
+•
+6mo ago
+Data cleaning and well designed 512 ctx full of information is the hardest park.
+
+Intelligent chunking is the key , so rags actually useful if your a book writing app chunk by chapter (story-spider.com) and book, then you can continue a series, programming , chunk by function and project and file name, etc . Always upsert, so it's the latest function or chapter .. rags are semantic, so as long as all chunks are the latest memories, always keep things progressing.. all ai agent programming three core things. Context is king, always keep moving rag knowledge forwards, and put hard guard rails and schemas between the fuzzy logic that are llms.
+
+-------------------------------------------------------------------------------------------
+
+Blog : 
+How agentic search helps AI understand long documents
+Chain-of-memory reasoning helps AI agents retrieve from tens of thousands of pages of long contexts without hallucinating.
+
+Allen Wang
+Allen Wang
+
+&
+Towaki Takikawa
+Towaki Takikawa
+
+March 27, 2025
+How agentic search helps AI understand long documents
+We’ve recently been working on an agentic search system that can read and understand complex, long documents like a researcher or lawyer would- iteratively reasoning through the document and citing evidences for claims. We've deployed this system in production for our customers, including a bank run by a Fortune 150 company to help employees make sense of complex internal policies and regulations.
+
+Our agentic search system improves upon RAG and naive long context, allowing us to perform more accurate and faster retrieval. Under the hood, we use cool techniques like KV cache management, and wanted to share our learnings with the community.
+
+What's the problem with RAG?
+Lots of people use vector RAG, but they also often suffer from accuracy issues in mission critical applications (like compliance or legal).
+
+But first of all, what exactly is RAG?
+
+RAG stands for "Retrieval-Augmented Generation", and it works by first retrieving information from a knowledge base before the LLM (or any AI model or agent) answers the question. In most cases, this retrieval system is implemented using a vector database. We will refer to this approach as Vector RAG.
+
+Vector RAG works by embedding sentences or chunks into vectors, and using an embedding of the query to find relevant snippets. This has a couple of challenges:
+
+Cannot handle indirect causations. For example, the answer to the question: "What's the cause of rising death rates in Mississippi?"might be that “there is an increase in drunk driving, which leads to more car accidents, and rising death rates”. The embedding for “increase in drunk driving” is not necessarily similar to the embedding for “death rates in Mississippi”.
+Embeddings are unreliable and hard to improve. Even for queries that are related, the embeddings may not be in the same space due to lack of training data. While fine-tuning is possible, it’s hard to debug / improve the system if this happens.
+There are lots of decision parameters. The quality of RAG systems relies on a number of design decisions (window size, overlap, metadata, query translation, reranking, etc) which are all hard to tune. A common pain-point we hear is that it's hard to know how much of the inaccuracies stem from not knowing how to properly tune the system, or if the system is just fundamentally flawed.
+Poor user experience. Since the retrieval will return the top K results, it's hard to understand the logical ordering of the retrievals, and often times they will be random text blobs that are not human readable.
+Perhaps most importantly, it is an inflexible system. Maybe what you want the system to do is a task like "find all section reference numbers for inventory management policies", which requires you to not only retrieve the relevant sections, but also understand that it needs section numbers which might not be present in the retrieved sections.
+
+Is Long-Context the Solution?
+An alternative to Vector RAG is to feed the documents into the LLM as a prompt and ask the LLM to retrieve relevant sections.
+
+Various benchmarks show that long context retrieval has higher accuracy than vector RAG. LLMs can holistically reason over the document and retrieve relevant information based on the broader context. But long context retrieval also has a number of challenges:
+
+Computationally expensive. The attention operation is O(n^2) in number of tokens, and pre-filling latency scales super linearly with respect to the context length. In practice, this means it takes 3 minutes to process 128k tokens when running a 70B model (quantized) on 2 A100 GPUs.
+Accuracy decreases as context length increases. The accuracy of long context retrieval starts to gradually decrease after 40k+ tokens. The drop-off is even more significant for reasoning models like OpenAI o1 and DeepSeek R1.
+Hard limit on the context length. Most popular models are limited to a context size of 128k. For example, 10K reports or internal procedure documents can easily exceed 200k+ tokens.
+Hallucinations. Since the LLM is generating the retrievals, it can make up quotes and fake references that don't exist.
+In practice, both Vector RAG and long-context retrieval hallucinate, but just in different ways. Vector RAG hallucinates the answer because the retrievals are not relevant or missing information, while long-context retrieval hallucinates by making up retrievals or missing information in the long-context.
+
+Our Solution: Chain-of-Memory Retrieval
+Unsatisfied with vector RAG or long-context retrieval, we had to develop a new technique, which we call chain-of-memory retrieval which uses an agentic search approach for retrieval.
+
+This technique consists of breaking down the question & answering process into steps:
+
+Planning: An initial planning step reasons over user query to create a filter for later retrievals.
+Hotswapping the KV Cache: We preprocess the KV cache of chunks, and leverage KV cache offloading and hot-swapping to bypass pre-fill latency almost entirely.
+Step-by-step Retrieval: We automatically determine the semantic chunking lengths that maximize retrieval accuracy. We can employ this in either a parallel, iterative, or tree-based manner to control the throughput-accuracy curve. We also employ a smaller model specialized for retrieval in this step for maximum performance.
+Generating the final answer: A final reasoning step synthesizes the retrieved information into a final answer. Let’s dive in deeper what each of these entail.
+We will explain each of these components in detail. One key benefit of decomposing into steps like above is that it allows us to use different models for different steps to both manage cost and improve accuracy.
+
+There are also a few prerequisites, like OCR and vision models that extract tables and figures as well as a system to pick the relevant documents in the first place. We will not cover these in this blog post, and instead dive deep in them in future blog posts as they have a lot of nuances on their own.
+
+Disclaimer: The prompts that we will write in this blog post are not the prompts we use in production. In practice, the prompts are much more complex, and the amount of work you put in writing prompts and running rigorous evaluations on them matters a lot for quality. Some of the technical details are also different in production (and honestly, constantly evolving as we improve quality further!)
+
+Planning
+The initial planning step allows us to attempt to clarify the user query and enhance the retrieval step. This is similar to the reasoning that models like OpenAI o1 and DeepSeek R1 do. This planning is based only on the user query and a short summary of the relevant documents (and hence is low-cost).
+
+We first have a prompt that can elaborate on the user query as follows:
+
+
+Show Prompt
+As an example, this would have the following outputs for a given question:
+
+
+Question
+
+Planning Output
+This step is analogous to a human expert who first decides what they are looking in the documents before diving into them.
+
+Note that this step has a short input context and output context (~500 tokens in total), making it relatively quick and cheap. Optionally, a human user can provide feedback on the planning step to refine the plan.
+
+Hotswapping the KV Cache
+KV Cache Diagram
+
+When LLMs process input tokens (the prompt, in a process known as pre-filling), it produces the KV cache.
+
+The KV cache contains vectors that represents the semantic meaning of each token in reference to other tokens. The mathematics aside, they are analogous to the short term memory of a human - the cognitive context we develop after we read something.
+
+The key observations are that:
+
+As long as the prefix for the prompt doesn’t change, we can reuse the KV cache by saving the KV cache to either CPU or disk, and reload instead of recomputing it. This saves an enormous amount of redundant compute.
+
+We often ask many questions against the same context (i.e. a financial report you are analyzing, or a company’s internal policy documents).
+
+This means that we can preprocess the KV cache for the documents once and reuse them, cutting the time-to-first-token (TTFT) from 10s of seconds to 1-2 seconds. This is analogous to reading the documents once, and being able to bring back the short term memory at will instead of having to reread them again.
+
+More concretely, we prompt the LLM with something like:
+
+
+Show Prompt
+The reusable prefix section is saved as a KV cache, and is recycled for future questions. OpenAI and Anthropic both seem to leverage some sort of KV cache re-use under the hood, but they only retain the KV cache for 5-10 minutes and are “always cleared after 1 hour”.
+
+By using our own self-hosted open source models with our custom inference engine, we can keep the KV cache for an indefinite period of time. Self hosting on your infrastructure creates rooms for a completely different allocation of compute resources like CPU memory, compared to serverless APIs that don’t let you have control over this.
+
+Retrieval
+Separating the reasoning (planning) step from the retrieval step allows us to use a smaller model for retrieval, which helps manage cost and latency because this is the step that is the most compute / token intensive but does not require a sophisticated model. As a matter of fact, we find that using advanced reasoning models for retrieval is actually detrimental to retrieval accuracy.
+
+Based on benchmarks on our internal datasets, we find that retrieval accuracy for long context LLMs generally drop-off when the documents get long, and especially so for reasoning models like OpenAI o1, DeepSeek R1.
+
+Accuracy vs Context Length
+
+The graph also shows a tradeoff between retrieval accuracy and context length. While it is possible to simply dump the entire context (documents) to the LLM to find relevant passages, we found that this is not reliable for larger inputs.
+
+This motivates chunking the documents into medium size contexts, so that retrieval rate remains high. This is generally still enough for the model to look at the content holistically without missing cross-chunk relations. In rare cases where cross-chunk relations are important, we can take multiple passes over the chunks.
+
+There are a few ways to further make sure we don’t miss cross-chunk relations:
+
+Overlapping windows between chunks
+
+Using semantic boundaries (i.e breaking up by chapters)
+
+Prompt the LLM to focus on retrieving relevant information from the source, and avoid making conclusions.
+
+Once we chunk the documents, we can use several techniques to retrieve relevant information from the chunks.
+
+
+Chain-of-Memory
+
+Parallel Chain-of-Memory
+Adding context and reasoning to the retrieval
+A small technique that we find is very useful and lends itself to good user experience is to have the model output structured reasoning for each retrieval. This can also be a place to add more metadata about the retrieval, which can help answer questions like where the information came from, what chapter it is from, etc.
+
+Getting rid of hallucinations
+All this helps with not missing critical information, but it does not prevent the LLM from hallucinating and making up information that is not in the documents. It is also rather slow, as the LLM has to repeat the sentences from the source documents, spending precious output tokens.
+
+As a result, we also retrieve sentences from the source documents in the same way computers efficiently store and read information: through addresses. Instead of repeating entire sentences, we retrieve IDs for sentences, figures, and tables (that are populated in preprocessing). This also gets rid of hallucinations entirely, since the model can only retrieve source material that actually exist in the source documents.
+
+Generating the final answer
+Given the relevant information from each chunk, we can aggregate them to generate the final answer.
+
+This part is simple. Crucially, however, we can use a powerful reasoning model without worrying too much about latency since the input context will have been summarized to be relatively short.
+
+
+Show Prompt
+Here are the relevant pieces of information retrieved cross sources of documents:
+
+{segment1} {segment2} ...
+
+Given these pieces of information, answer the following user question:
+
+{question}
+
+Showcase
+We show that our technique can indeed improve complex document Q&A accuracy.
+
+We compare against a naive long-context retrieval method using OpenAI 4o. Note that we did not use o1, because we’ve found that its long context retrieval capability are weak. We run our technique with open source models that can be self hosted. We show that even while using a slightly weaker model, our technique ends up performing much better.
+
+Using the 3M’s 10K report as the source document, we ask the following the question:
+
+
+Question
+What is the number of municipal lawsuits (not including individual or class actions) 3M is currently defending in New Jersey federal court related to PFAS contamination?
+
+A naive way to handle this with long context LLM is to split the 200k tokens into chunks of 100k tokens, and ask the question. Then have another step that aggregates the answers.
+
+We get the following answers from OpenAI 4o, depending how we prompt it.
+
+
+OpenAI 4o Output 1
+3M is currently defending 13 municipal lawsuits in New Jersey federal court brought by various drinking water providers alleging PFAS contamination.
+
+
+OpenAI 4o Output 2
+3M is currently defending approximately 70 municipal lawsuits in New Jersey federal court related to PFAS contamination.
+
+In both cases the answers are wrong- prompt engineering does not save us. Our chain-of-memory technique, on the other hand, returns the correct answer.
+
+
+Chain-of-Memory Output
+Based on the evidence provided, 3M is currently defending 3 municipal lawsuits in New Jersey federal court related to PFAS contamination, excluding individual or class actions. These lawsuits are brought by Middlesex Water Company, the Borough of Hopatcong, and Pequannock Township.
+
+And this successfully returns the correct answer!
