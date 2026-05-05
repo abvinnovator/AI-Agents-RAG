@@ -1,0 +1,40 @@
+# CloudOps AI - Agentic RAG + Support Agents
+# =============================================
+
+# Core
+python-dotenv
+fastapi
+uvicorn
+pydantic
+
+# LLM
+google-generativeai
+
+# Embeddings
+sentence-transformers
+
+# Vector DB
+pinecone
+
+# RAG Pipeline
+langchain
+langchain-core
+langchain-google-genai
+langchain-community
+
+# Document Processing
+beautifulsoup4
+markdownify
+html2text
+unstructured
+
+# Reranking (free, local)
+flashrank
+
+# MongoDB
+pymongo
+motor
+
+# Utilities
+httpx
+numpy
