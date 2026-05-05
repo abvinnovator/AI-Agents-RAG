@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Dialog,
   DialogTitle, DialogContent, DialogActions, TextField,
-  FormControl, InputLabel, Select, MenuItem, Divider, Chip,
-  IconButton,
+  FormControl, InputLabel, Select, MenuItem, Chip,
+  IconButton, CircularProgress, Alert, LinearProgress,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -13,15 +13,18 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendIcon from '@mui/icons-material/Send';
 import PersonIcon from '@mui/icons-material/Person';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { useSupportStore } from '../../hooks/useSupportStore';
 import { useAuthStore } from '../../hooks/useAuthStore';
 import {
   getTicketsForRole, getTicketsForUser,
   startWorkingOnTicket, resolveTicket, escalateTicket, addMessage,
-  type Ticket,
+  
 } from '../../store/supportStore';
 import { SUPPORT_ROLES, getRoleLabel, type SupportRole } from '../../store/authStore';
 import { SeverityBadge, StatusBadge, CategoryBadge } from '../../components/support/StatusBadge';
+import { getAISuggestion, teachAgent, checkAIHealth, type AISuggestion } from '../../services/aiApi';
 
 const EngineerTickets: React.FC = () => {
   const supportState = useSupportStore();
@@ -35,6 +38,17 @@ const EngineerTickets: React.FC = () => {
   const [escalateDialogOpen, setEscalateDialogOpen] = useState(false);
   const [escalateRole, setEscalateRole] = useState<SupportRole>('L3');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // AI Agent state
+  const [aiSuggestion, setAiSuggestion] = useState<AISuggestion | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiAvailable, setAiAvailable] = useState(false);
+  const [aiDismissed, setAiDismissed] = useState(false);
+
+  // Check if AI service is running on mount
+  useEffect(() => {
+    checkAIHealth().then(setAiAvailable);
+  }, []);
 
   // Tickets assigned to this role or directly to this user
   const roleTickets = getTicketsForRole(session.role);
@@ -63,6 +77,57 @@ const EngineerTickets: React.FC = () => {
     resolveTicket(liveTicket.id, resolution.trim(), session.userId);
     setResolveDialogOpen(false);
     setResolution('');
+
+    // Teach the AI agent from this resolution
+    if (aiAvailable) {
+      teachAgent({
+        agent_id: session.userId,
+        agent_name: session.agentName,
+        user_role: session.role,
+        ticket_id: liveTicket.id,
+        ticket_number: liveTicket.ticketNumber,
+        description: liveTicket.description,
+        resolution: resolution.trim(),
+        category: liveTicket.category,
+        conversation: liveTicket.messages.map(m => ({
+          content: m.content, authorId: m.authorId,
+          authorName: m.authorName, authorRole: m.authorRole,
+        })),
+      });
+    }
+  };
+
+  // Ask AI for suggestion
+  const handleAskAI = useCallback(async () => {
+    if (!liveTicket || aiLoading) return;
+    setAiLoading(true);
+    setAiDismissed(false);
+    setAiSuggestion(null);
+
+    const result = await getAISuggestion({
+      agent_id: session.userId,
+      agent_name: session.agentName,
+      user_role: session.role,
+      ticket_title: liveTicket.title,
+      ticket_description: liveTicket.description,
+      ticket_category: liveTicket.category,
+      ticket_severity: liveTicket.severity,
+      conversation: liveTicket.messages.map(m => ({
+        content: m.content, authorId: m.authorId,
+        authorName: m.authorName, authorRole: m.authorRole,
+      })),
+    });
+
+    setAiSuggestion(result);
+    setAiLoading(false);
+  }, [liveTicket, aiLoading, session]);
+
+  // Auto-use AI suggestion as reply text
+  const handleApproveAI = () => {
+    if (aiSuggestion?.suggestion) {
+      setReplyText(aiSuggestion.suggestion);
+      setAiDismissed(true);
+    }
   };
 
   const handleEscalate = () => {
@@ -118,7 +183,7 @@ const EngineerTickets: React.FC = () => {
           )}
 
           {/* Action buttons for the support engineer */}
-          <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
             {liveTicket.status === 'assigned' && (
               <Button
                 variant="contained"
@@ -131,6 +196,18 @@ const EngineerTickets: React.FC = () => {
             )}
             {liveTicket.status === 'in_progress' && (
               <>
+                {aiAvailable && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={aiLoading ? <CircularProgress size={14} /> : <AutoFixHighIcon />}
+                    onClick={handleAskAI}
+                    disabled={aiLoading}
+                    sx={{ borderColor: '#7b1fa2', color: '#7b1fa2' }}
+                  >
+                    {aiLoading ? 'Thinking...' : 'Ask AI Agent'}
+                  </Button>
+                )}
                 <Button
                   variant="contained"
                   size="small"
@@ -153,6 +230,92 @@ const EngineerTickets: React.FC = () => {
             )}
           </Box>
         </Paper>
+
+        {/* AI Suggestion Banner */}
+        {aiLoading && (
+          <Paper sx={{ p: 2, mb: 2, border: '1px solid #e8def8' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <SmartToyIcon sx={{ color: '#7b1fa2' }} />
+              <Typography variant="subtitle2" sx={{ color: '#7b1fa2' }}>
+                {session.agentName} is analyzing...
+              </Typography>
+            </Box>
+            <LinearProgress sx={{ '& .MuiLinearProgress-bar': { bgcolor: '#7b1fa2' } }} />
+          </Paper>
+        )}
+
+        {aiSuggestion && !aiDismissed && (
+          <Paper sx={{ p: 2, mb: 2, border: '1px solid #e8def8', bgcolor: '#faf5ff' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <SmartToyIcon sx={{ color: '#7b1fa2' }} />
+              <Typography variant="subtitle2" sx={{ color: '#7b1fa2' }}>
+                {session.agentName} — AI Suggestion
+              </Typography>
+              <Chip
+                label={aiSuggestion.source === 'past_tickets' ? 'From past tickets'
+                  : aiSuggestion.source === 'shared_tickets' ? 'From team tickets'
+                  : aiSuggestion.source === 'gcp_docs' ? 'From GCP docs'
+                  : 'No match'}
+                size="small"
+                sx={{ fontSize: '0.625rem', bgcolor: '#e8def8' }}
+              />
+              <Chip
+                label={`${Math.round(aiSuggestion.confidence * 100)}% confidence`}
+                size="small"
+                variant="outlined"
+                sx={{ fontSize: '0.625rem' }}
+              />
+            </Box>
+
+            {aiSuggestion.suggestion ? (
+              <>
+                <Paper variant="outlined" sx={{ p: 1.5, mb: 1.5, bgcolor: '#fff', whiteSpace: 'pre-wrap' }}>
+                  <Typography variant="body2">{aiSuggestion.suggestion}</Typography>
+                </Paper>
+
+                {/* Similar past tickets */}
+                {aiSuggestion.similar_tickets.length > 0 && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="caption" sx={{ color: '#5f6368', fontWeight: 500 }}>Based on:</Typography>
+                    {aiSuggestion.similar_tickets.map((t, i) => (
+                      <Typography key={i} variant="caption" sx={{ display: 'block', color: '#5f6368', ml: 1 }}>
+                        • {t.ticket_number}: {t.resolution_preview}
+                      </Typography>
+                    ))}
+                  </Box>
+                )}
+
+                {/* Citations from docs */}
+                {aiSuggestion.citations.length > 0 && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="caption" sx={{ color: '#5f6368', fontWeight: 500 }}>Sources:</Typography>
+                    {aiSuggestion.citations.map((c, i) => (
+                      <Typography key={i} variant="caption" sx={{ display: 'block', color: '#5f6368', ml: 1 }}>
+                        📄 {c.source}
+                      </Typography>
+                    ))}
+                  </Box>
+                )}
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={handleApproveAI}
+                    sx={{ bgcolor: '#7b1fa2', '&:hover': { bgcolor: '#6a1b9a' } }}
+                  >
+                    Use as Reply
+                  </Button>
+                  <Button size="small" onClick={() => setAiDismissed(true)}>Dismiss</Button>
+                </Box>
+              </>
+            ) : (
+              <Alert severity="info" sx={{ mt: 1 }}>
+                {aiSuggestion.message || 'No relevant suggestions found. Please handle manually.'}
+              </Alert>
+            )}
+          </Paper>
+        )}
 
         {/* Conversation thread */}
         <Paper sx={{ mb: 2, overflow: 'hidden' }}>
