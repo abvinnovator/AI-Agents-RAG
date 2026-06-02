@@ -31,6 +31,12 @@ unstructured
 # Reranking (free, local)
 flashrank
 
+# Keyword Search (BM25)
+rank-bm25
+
+# Web Search Fallback (free, no API key)
+duckduckgo-search
+
 # MongoDB
 pymongo
 motor

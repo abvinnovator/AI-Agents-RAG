@@ -24,7 +24,7 @@ import {
 } from '../../store/supportStore';
 import { SUPPORT_ROLES, getRoleLabel, type SupportRole } from '../../store/authStore';
 import { SeverityBadge, StatusBadge, CategoryBadge } from '../../components/support/StatusBadge';
-import { getAISuggestion, teachAgent, checkAIHealth, type AISuggestion } from '../../services/aiApi';
+import { getAISuggestion, teachAgent, checkAIHealth, submitFeedback, type AISuggestion } from '../../services/aiApi';
 
 const EngineerTickets: React.FC = () => {
   const supportState = useSupportStore();
@@ -108,6 +108,8 @@ const EngineerTickets: React.FC = () => {
       agent_id: session.userId,
       agent_name: session.agentName,
       user_role: session.role,
+      ticket_id: liveTicket.id,
+      ticket_number: liveTicket.ticketNumber,
       ticket_title: liveTicket.title,
       ticket_description: liveTicket.description,
       ticket_category: liveTicket.category,
@@ -122,12 +124,24 @@ const EngineerTickets: React.FC = () => {
     setAiLoading(false);
   }, [liveTicket, aiLoading, session]);
 
-  // Auto-use AI suggestion as reply text
+  // Auto-use AI suggestion as reply text + track approval
   const handleApproveAI = () => {
     if (aiSuggestion?.suggestion) {
       setReplyText(aiSuggestion.suggestion);
       setAiDismissed(true);
+      // Track approval in AI dashboard
+      if (aiSuggestion.suggestion_id) {
+        submitFeedback(aiSuggestion.suggestion_id, 'approved');
+      }
     }
+  };
+
+  // Dismiss AI suggestion + track rejection
+  const handleDismissAI = () => {
+    if (aiSuggestion?.suggestion_id) {
+      submitFeedback(aiSuggestion.suggestion_id, 'rejected');
+    }
+    setAiDismissed(true);
   };
 
   const handleEscalate = () => {
@@ -255,9 +269,11 @@ const EngineerTickets: React.FC = () => {
                 label={aiSuggestion.source === 'past_tickets' ? 'From past tickets'
                   : aiSuggestion.source === 'shared_tickets' ? 'From team tickets'
                   : aiSuggestion.source === 'gcp_docs' ? 'From GCP docs'
+                  : aiSuggestion.source === 'gcp_docs+web' ? 'GCP docs + Web'
+                  : aiSuggestion.source === 'web_search' ? 'From web search'
                   : 'No match'}
                 size="small"
-                sx={{ fontSize: '0.625rem', bgcolor: '#e8def8' }}
+                sx={{ fontSize: '0.625rem', bgcolor: aiSuggestion.source === 'web_search' ? '#fff3e0' : '#e8def8' }}
               />
               <Chip
                 label={`${Math.round(aiSuggestion.confidence * 100)}% confidence`}
@@ -285,14 +301,29 @@ const EngineerTickets: React.FC = () => {
                   </Box>
                 )}
 
-                {/* Citations from docs */}
+                {/* Citations from docs and web */}
                 {aiSuggestion.citations.length > 0 && (
                   <Box sx={{ mb: 1 }}>
                     <Typography variant="caption" sx={{ color: '#5f6368', fontWeight: 500 }}>Sources:</Typography>
                     {aiSuggestion.citations.map((c, i) => (
-                      <Typography key={i} variant="caption" sx={{ display: 'block', color: '#5f6368', ml: 1 }}>
-                        📄 {c.source}
-                      </Typography>
+                      <Box key={i} sx={{ ml: 1 }}>
+                        {c.url ? (
+                          <Typography
+                            variant="caption"
+                            component="a"
+                            href={c.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ display: 'block', color: '#1a73e8', textDecoration: 'underline', cursor: 'pointer' }}
+                          >
+                            🌐 {c.source}
+                          </Typography>
+                        ) : (
+                          <Typography variant="caption" sx={{ display: 'block', color: '#5f6368' }}>
+                            📄 {c.source}
+                          </Typography>
+                        )}
+                      </Box>
                     ))}
                   </Box>
                 )}
@@ -306,7 +337,7 @@ const EngineerTickets: React.FC = () => {
                   >
                     Use as Reply
                   </Button>
-                  <Button size="small" onClick={() => setAiDismissed(true)}>Dismiss</Button>
+                  <Button size="small" onClick={handleDismissAI}>Dismiss</Button>
                 </Box>
               </>
             ) : (

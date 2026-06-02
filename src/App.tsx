@@ -28,6 +28,7 @@ import TeamManagement from './pages/panel/TeamManagement';
 import EscalationMatrix from './pages/panel/EscalationMatrix';
 import TicketQueue from './pages/panel/TicketQueue';
 import EngineerTickets from './pages/panel/EngineerTickets';
+import AIMonitorDashboard from './pages/panel/AIMonitorDashboard';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
             <Route path="escalation" element={<EscalationMatrix />} />
             <Route path="tickets" element={<TicketQueue />} />
             <Route path="my-tickets" element={<EngineerTickets />} />
+            <Route path="ai-monitor" element={<AIMonitorDashboard />} />
           </Route>
         </Routes>
       </BrowserRouter>

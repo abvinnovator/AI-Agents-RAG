@@ -16,7 +16,7 @@ load_dotenv(_env_path)
 
 # ─── API Keys ────────────────────────────────────────────────────
 
-GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Iv21f01viZiA-sC6YGgXbStqWfPeUsPQv38Gwrr2or0w")
 PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY", "")
 MONGODB_URI: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017/cloudops")
 
@@ -63,7 +63,7 @@ FINAL_RERANK_KEEP: int = 5              # final chunks sent to LLM
 # ─── Agent Behaviour ────────────────────────────────────────────
 
 AGENT_TOP_K: int = 10                    # vectors fetched per agent search
-AGENT_SIMILARITY_THRESHOLD: float = 0.35 # min rerank score to trust past tickets
+AGENT_SIMILARITY_THRESHOLD: float = 0.65 # min rerank score to trust past tickets (raised from 0.35)
 
 
 # ─── Data Directories ───────────────────────────────────────────
@@ -71,3 +71,18 @@ AGENT_SIMILARITY_THRESHOLD: float = 0.35 # min rerank score to trust past ticket
 _DATA_ROOT = Path(__file__).resolve().parent / "data"
 GCP_DOCS_DIR: str = str(_DATA_ROOT / "gcp_docs")
 BEST_PRACTICES_DIR: str = str(_DATA_ROOT / "best_practices")
+
+
+# ─── BM25 Hybrid Search ────────────────────────────────────────
+
+BM25_INDEX_PATH: str = str(_DATA_ROOT / "bm25_index.json")
+BM25_TOP_K: int = 15                     # BM25 results before merge
+HYBRID_RRF_K: int = 60                   # RRF constant (standard = 60)
+
+
+# ─── AI Tracker / Dashboard ────────────────────────────────────
+
+_LOG_ROOT = Path(__file__).resolve().parent / "logs"
+AI_TRACKER_LOG: str = str(_LOG_ROOT / "ai_tracker.jsonl")
+AI_TRACKER_METRICS: str = str(_LOG_ROOT / "ai_tracker_metrics.json")
+

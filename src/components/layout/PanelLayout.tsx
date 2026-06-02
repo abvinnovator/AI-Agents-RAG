@@ -11,6 +11,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
+import InsightsIcon from '@mui/icons-material/Insights';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../hooks/useAuthStore';
 import { logout } from '../../store/authStore';
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { label: 'Escalation Matrix', icon: <RuleIcon fontSize="small" />, path: '/support-panel/escalation', roles: ['super_admin'] },
   { label: 'Ticket Queue', icon: <ConfirmationNumberIcon fontSize="small" />, path: '/support-panel/tickets', roles: ['super_admin'] },
   { label: 'My Tickets', icon: <AssignmentIcon fontSize="small" />, path: '/support-panel/my-tickets', roles: ['L1', 'L2', 'L3', 'L4', 'TSE'] },
+  { label: 'AI Monitor', icon: <InsightsIcon fontSize="small" />, path: '/support-panel/ai-monitor', roles: ['super_admin', 'L1', 'L2', 'L3', 'L4', 'TSE'] },
 ];
 
 const PanelLayout: React.FC = () => {

@@ -67,7 +67,7 @@ const SideNav: React.FC<SideNavProps> = ({ open }) => {
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           borderRight: '1px solid #dadce0',
-          mt: '48px',
+          mt: '64px',
           bgcolor: '#fff',
         },
       }}
