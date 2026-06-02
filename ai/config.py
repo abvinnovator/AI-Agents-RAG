@@ -16,7 +16,7 @@ load_dotenv(_env_path)
 
 # ─── API Keys ────────────────────────────────────────────────────
 
-GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6Iv21f01viZiA-sC6YGgXbStqWfPeUsPQv38Gwrr2or0w")
+GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY", "")
 MONGODB_URI: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017/cloudops")
 
