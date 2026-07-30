@@ -102,7 +102,7 @@ const VpcNetworks: React.FC = () => {
         <List dense sx={{ py: 0.5 }}>
           {['VPC networks', 'Subnets', 'IP addresses', 'Routes'].map((item, i) => (
             <ListItemButton key={item} selected={i === 0} sx={{ py: 0.5, pl: 2.5, '&.Mui-selected': { bgcolor: '#e8f0fe', color: '#1a73e8' } }}>
-              <ListItemText primary={item} primaryTypographyProps={{ fontSize: '13px' }} />
+              <ListItemText primary={item} slotProps={{ primary: { sx: { fontSize: '13px' } } }} />
             </ListItemButton>
           ))}
         </List>

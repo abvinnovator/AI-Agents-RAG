@@ -32,13 +32,13 @@ const BigQuery: React.FC = () => {
 
   const handleCreateDs = () => {
     if (!dsName.trim()) return;
-    createDataset({ name: dsName.trim(), location: dsLocation, tables: [] });
+    createDataset(dsName.trim(), dsLocation);
     setShowCreateDs(false); setDsName('');
   };
 
   const handleCreateTbl = () => {
     if (!tblName.trim() || !selectedDsId) return;
-    createBqTable(selectedDsId, { name: tblName.trim(), sizeGb: tblSize, numRows: tblRows, schema: [] });
+    createBqTable(selectedDsId, tblName.trim(), tblSize, tblRows);
     setShowCreateTbl(false); setTblName(''); setTblSize(0); setTblRows(0);
   };
 
@@ -200,7 +200,7 @@ const BigQuery: React.FC = () => {
                       <TableRow key={t.id} hover>
                         <TableCell sx={{ fontWeight: 500, fontSize: '13px', color: '#1a73e8', cursor: 'pointer' }}>{t.name}</TableCell>
                         <TableCell sx={{ fontSize: '13px' }}>{t.sizeGb} GB</TableCell>
-                        <TableCell sx={{ fontSize: '13px' }}>{t.numRows.toLocaleString()}</TableCell>
+                        <TableCell sx={{ fontSize: '13px' }}>{t.rowCount.toLocaleString()}</TableCell>
                         <TableCell sx={{ fontSize: '13px' }}>{new Date(t.createdAt).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}
